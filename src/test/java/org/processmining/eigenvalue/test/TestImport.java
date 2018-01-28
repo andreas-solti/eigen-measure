@@ -1,4 +1,4 @@
-package de.solti.eigenvalue.test;
+package org.processmining.eigenvalue.test;
 
 import org.deckfour.xes.extension.std.XConceptExtension;
 import org.deckfour.xes.factory.XFactoryBufferedImpl;
