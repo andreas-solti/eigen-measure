@@ -10,5 +10,9 @@ repositories {
 }
 
 dependencies {
+    // https://mvnrepository.com/artifact/io.github.andreas-solti.xeslite/xeslite
+    compile group: 'io.github.andreas-solti.xeslite', name: 'xeslite', version: '0.0.1'
+    runtime files('lib/OpenXES-20171212.jar')
+    compile fileTree(dir: 'lib', include: '*.jar')
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
