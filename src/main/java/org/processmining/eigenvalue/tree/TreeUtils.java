@@ -2,8 +2,18 @@ package org.processmining.eigenvalue.tree;
 
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
+import org.deckfour.xes.classification.XEventClassifier;
+import org.deckfour.xes.classification.XEventNameClassifier;
+import org.deckfour.xes.model.XLog;
+import org.processmining.framework.packages.PackageManager;
+import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree;
+import org.processmining.plugins.InductiveMiner.efficienttree.EfficientTree2processTree;
+import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
+import org.processmining.plugins.InductiveMiner.mining.logs.LifeCycleClassifier;
 import org.processmining.plugins.etm.model.narytree.NAryTree;
 import org.processmining.plugins.etm.model.narytree.NAryTreeImpl;
+import org.processmining.plugins.inductiveminer2.mining.InductiveMiner;
+import org.processmining.plugins.inductiveminer2.variants.MiningParametersIMInfrequent;
 import org.processmining.processtree.ProcessTree;
 import org.processmining.processtree.impl.ProcessTreeImpl;
 
@@ -124,5 +134,22 @@ public class TreeUtils {
 			treeSize = tree.size();
 		}
 		return tree;
+	}
+
+	public static ProcessTree mineTree(XLog xLog){
+		return mineTree(xLog, MiningParameters.getDefaultClassifier(), 0.2f);
+	}
+
+	public static ProcessTree mineTree(XLog xLog, XEventClassifier classifier, float noiseThreshold){
+		org.processmining.plugins.inductiveminer2.logs.IMLog log = new org.processmining.plugins.inductiveminer2.logs.IMLogImpl(xLog, classifier, new LifeCycleClassifier());
+		org.processmining.plugins.inductiveminer2.mining.MiningParameters miningParameters = new MiningParametersIMInfrequent();
+		EfficientTree eTree = InductiveMiner.mineEfficientTree(log, miningParameters, new PackageManager.Canceller() {
+			@Override
+			public boolean isCancelled() {
+				return false;
+			}
+		});
+
+		return EfficientTree2processTree.convert(eTree);
 	}
 }

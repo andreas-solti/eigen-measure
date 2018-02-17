@@ -38,7 +38,7 @@ public class TestImport {
         System.out.println("Memory Used: " + getMemoryUsage().getUsed() / 1024 / 1024 + " MB ");
     }
 
-    private Collection<XLog> getBPILogs() throws Exception {
+    public static Collection<XLog> getBPILogs() throws Exception {
         XUniversalParser parser = new XUniversalParser();
         File logFile = new File("test/logs/BPI Challenge 2017.xes.gz");
         Collection<XLog> logs = parser.parse(logFile);
