@@ -3,6 +3,8 @@ package org.processmining.eigenvalue.test;
 import dk.brics.automaton2.Automaton;
 import org.deckfour.xes.classification.XEventClasses;
 import org.deckfour.xes.classification.XEventClassifier;
+import org.deckfour.xes.in.XUniversalParser;
+import org.deckfour.xes.model.XLog;
 import org.processmining.eigenvalue.Utils;
 import org.processmining.models.graphbased.directed.petrinet.StochasticNet;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
@@ -16,12 +18,14 @@ import org.simpleframework.xml.core.Persister;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Collection;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TestUtils {
 
+    public static final String LOGS_FOLDER = "test/logs/";
     public static final String TEST_FOLDER = "test/testfiles/";
-    public static final String TEST_OUTPUT_FOLDER = "test/testfiles/out/";
+    public static final String TEST_OUTPUT_FOLDER = "test/out/";
 
     public static String ACTIVITIES = "abcdefghijklmnopqrstuvwxyz";
 
@@ -138,5 +142,48 @@ public class TestUtils {
             // If converting the automaton to PNG fails, then we
             System.err.println("Cannot convert automaton to .png. Possibly 'dot' is not available on this system.");
         }
+    }
+
+    /**
+     * Iterates the BPI logs
+     * @return
+     */
+    public static Iterable<XLog> getBPILogs(){
+        File folder = new File(LOGS_FOLDER);
+        if(folder.exists()) {
+            List<File> files = Arrays.asList(folder.listFiles());
+            Collections.sort(files, new Comparator<File>() {
+                @Override
+                public int compare(File o1, File o2) {
+                    return o1.getName().compareTo(o2.getName());
+                }
+            });
+            final List<File> finalFiles = files;
+            final XUniversalParser parser = new XUniversalParser();
+            final AtomicInteger counter = new AtomicInteger(0);
+            return new Iterable<XLog>() {
+                @Override
+                public Iterator<XLog> iterator() {
+                    return new Iterator<XLog>() {
+                        @Override
+                        public boolean hasNext() {
+                            return counter.get() < finalFiles.size();
+                        }
+
+                        @Override
+                        public XLog next() {
+                            XLog log = null;
+                            try {
+                                log = parser.parse(finalFiles.get(counter.getAndIncrement())).iterator().next();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            return log;
+                        }
+                    };
+                }
+            };
+        }
+        return null;
     }
 }

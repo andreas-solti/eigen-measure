@@ -16,6 +16,10 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.processmining.eigenvalue.test.TestUtils.LOGS_FOLDER;
 
 public class TestImport {
 
@@ -38,45 +42,36 @@ public class TestImport {
         System.out.println("Memory Used: " + getMemoryUsage().getUsed() / 1024 / 1024 + " MB ");
     }
 
-    public static Collection<XLog> getBPILogs() throws Exception {
-        XUniversalParser parser = new XUniversalParser();
-        File logFile = new File("test/logs/BPI Challenge 2017.xes.gz");
-        Collection<XLog> logs = parser.parse(logFile);
 
-        for(XLog log : logs){
-            System.out.println("Loaded log: " + XConceptExtension.instance().extractName(log));
-        }
-        return logs;
-    }
 
-    @Test
-    public void testLoadLog() throws Exception {
-        XFactoryRegistry.instance().setCurrentDefault(new XFactoryNaiveImpl());
-        Collection<XLog> logs = getBPILogs();
-        Assert.assertTrue(logs.size() > 0);
-
-        measureMemory();
-    }
-
-    @Test
-    public void testLoadLite() throws Exception {
-        XFactoryRegistry.instance().setCurrentDefault(new XFactoryLiteImpl());
-
-        Collection<XLog> logs = getBPILogs();
-        Assert.assertTrue(logs.size() > 0);
-
-        measureMemory();
-    }
-
-    @Test
-    public void testLoadLiteInMemoryStore() throws Exception {
-        XFactoryRegistry.instance().setCurrentDefault(new XFactoryExternalStore.InMemoryStoreImpl());
-
-        Collection<XLog> logs = getBPILogs();
-        Assert.assertTrue(logs.size() > 0);
-
-        measureMemory();
-    }
+//    @Test
+//    public void testLoadLog() throws Exception {
+//        XFactoryRegistry.instance().setCurrentDefault(new XFactoryNaiveImpl());
+//        Collection<XLog> logs = getBPILogs();
+//        Assert.assertTrue(logs.size() > 0);
+//
+//        measureMemory();
+//    }
+//
+//    @Test
+//    public void testLoadLite() throws Exception {
+//        XFactoryRegistry.instance().setCurrentDefault(new XFactoryLiteImpl());
+//
+//        Collection<XLog> logs = getBPILogs();
+//        Assert.assertTrue(logs.size() > 0);
+//
+//        measureMemory();
+//    }
+//
+//    @Test
+//    public void testLoadLiteInMemoryStore() throws Exception {
+//        XFactoryRegistry.instance().setCurrentDefault(new XFactoryExternalStore.InMemoryStoreImpl());
+//
+//        Collection<XLog> logs = getBPILogs();
+//        Assert.assertTrue(logs.size() > 0);
+//
+//        measureMemory();
+//    }
 
 
 }
