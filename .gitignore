@@ -1,6 +1,9 @@
 # Build dir
 build/
 
+# gradle stuff
+.gradle/
+
 # Compiled class file
 *.class
 
