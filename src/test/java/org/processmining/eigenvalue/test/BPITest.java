@@ -47,7 +47,7 @@ public class BPITest extends PrecisionRecallTest {
             writer.write(EntropyPrecisionRecall.getHeader()+"\n");
             for (XLog log : TestUtils.getBPILogs()) {
                 try {
-                    writer.write(getResultString(log));
+                    writer.write(getResultString(log)+"\n");
                     writer.flush();
                 } catch (ProcessTree2Petrinet.NotYetImplementedException e) {
                     e.printStackTrace();
