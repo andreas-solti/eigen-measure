@@ -37,6 +37,12 @@ public class BPITest extends PrecisionRecallTest {
         }
     }
 
+    /**
+     * Runs all BPI Logs through the pipeline and computes their precision and recall values with a mined model
+     * inductive miner (default settings).
+     *
+     * Stores the results as .csv file in {@link TestUtils#TEST_OUTPUT_FOLDER} in the file real_logs_results.csv
+     */
     @Test
     public void testComputePrecisionRecall() {
         File outFolder = new File(TestUtils.TEST_OUTPUT_FOLDER);
