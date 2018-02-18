@@ -3,12 +3,15 @@ package org.processmining.eigenvalue.test.paper;
 import dk.brics.automaton2.Automaton;
 import dk.brics.automaton2.State;
 import dk.brics.automaton2.Transition;
+import org.junit.Assert;
 import org.junit.Test;
 import org.processmining.eigenvalue.Utils;
+import org.processmining.eigenvalue.automata.TopologicalEntropyComputer;
 import org.processmining.eigenvalue.test.TestUtils;
 
-import java.io.*;
-import java.nio.Buffer;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,10 +35,19 @@ public class AutomatonTest {
         sE.setAccept(false);
         sE.addTransition(new Transition("\u0004".charAt(0),sA));
 
-        outputPNG(a, "fig1c");
+        Assert.assertEquals(5,a.getNumberOfStates());
+        Assert.assertEquals(6,a.getNumberOfTransitions());
 
+        TestUtils.outputPNG(a, "fig1c");
+        a.setDeterministic(false);
         a.determinize(Utils.NOT_CANCELLER);
-        outputPNG(a, "fig1c_det");
+
+        Assert.assertEquals(4, a.getNumberOfStates());
+        Assert.assertEquals(5, a.getNumberOfTransitions());
+        TestUtils.outputPNG(a, "fig1c_det");
+
+        a.minimize(Utils.NOT_CANCELLER);
+        TestUtils.outputPNG(a, "fig1c_min");
 
     }
 
@@ -57,23 +69,14 @@ public class AutomatonTest {
         sE.addTransition(new dk.brics.automaton.Transition('e',sA));
 
         outputPNG(a, "fig1c_orig");
-
+        a.setDeterministic(false);
         a.determinize();
         outputPNG(a, "fig1c_orig_det");
+
+        a.minimize();
+        outputPNG(a, "fig1c_orig_min");
     }
 
-    private void outputPNG(Automaton a, String name) throws IOException {
-        String dotFile = name+".dot";
-        String pngFile = name+".png";
-        FileWriter fw = new FileWriter(dotFile);
-        fw.write(a.toDot());
-        fw.close();
-
-        File output = new File(pngFile);
-        ProcessBuilder pb = new ProcessBuilder("dot", "-Tpng", dotFile);
-        pb.redirectOutput(output);
-        pb.start();
-    }
 
     private void outputPNG(dk.brics.automaton.Automaton a, String name) throws IOException {
         String dotFile = name+".dot";

@@ -251,7 +251,7 @@ public class TopologicalEntropyComputer {
         return isDeterministic;
     }
 
-    private static class MatrixAndDegreeStats {
+    public static class MatrixAndDegreeStats {
         private CompColMatrix cp;
         private double avgDegree;
         private double maxDegree;

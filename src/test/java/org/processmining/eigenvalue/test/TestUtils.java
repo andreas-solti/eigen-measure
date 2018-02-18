@@ -1,7 +1,9 @@
 package org.processmining.eigenvalue.test;
 
+import dk.brics.automaton2.Automaton;
 import org.deckfour.xes.classification.XEventClasses;
 import org.deckfour.xes.classification.XEventClassifier;
+import org.processmining.eigenvalue.Utils;
 import org.processmining.models.graphbased.directed.petrinet.StochasticNet;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.models.semantics.petrinet.Marking;
@@ -12,11 +14,16 @@ import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Collection;
 
 public class TestUtils {
 
     public static final String TEST_FOLDER = "test/testfiles/";
+    public static final String TEST_OUTPUT_FOLDER = "test/testfiles/out/";
+
+    public static String ACTIVITIES = "abcdefghijklmnopqrstuvwxyz";
 
     /**
      * Loads a Petri net model from the test files folder.
@@ -90,5 +97,46 @@ public class TestUtils {
             }
         }
         return false;
+    }
+
+    private static short[] getShortArray(String trace) {
+        short[] arr = new short[trace.length()];
+        for (int i = 0; i < trace.length(); i++){
+            arr[i] = (short)ACTIVITIES.indexOf(trace.substring(i,i+1));
+        }
+        return arr;
+    }
+
+    public static Automaton getLogAutomaton(String...traces){
+        Automaton a = new Automaton();
+        for (String trace : traces) {
+            a.incorporateTrace(getShortArray(trace), Utils.NOT_CANCELLER);
+        }
+        a.determinize(Utils.NOT_CANCELLER);
+        a.minimize(Utils.NOT_CANCELLER);
+        return a;
+    }
+
+    public static void outputPNG(Automaton a, String name) {
+        try {
+            String dotFileName = name + ".dot";
+            String pngFileName = name + ".png";
+            File outfolder = new File(TEST_OUTPUT_FOLDER);
+            if(!outfolder.exists()){
+                outfolder.mkdirs();
+            }
+            File dotFile = new File(outfolder,dotFileName);
+            FileWriter fw = new FileWriter(dotFile);
+            fw.write(a.toDot());
+            fw.close();
+
+            File pngFile = new File(outfolder, pngFileName);
+            ProcessBuilder pb = new ProcessBuilder("dot", "-Tpng", dotFile.getAbsolutePath());
+            pb.redirectOutput(pngFile);
+            pb.start();
+        } catch (Exception e){
+            // If converting the automaton to PNG fails, then we
+            System.err.println("Cannot convert automaton to .png. Possibly 'dot' is not available on this system.");
+        }
     }
 }

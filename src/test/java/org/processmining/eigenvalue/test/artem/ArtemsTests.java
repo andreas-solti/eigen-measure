@@ -50,7 +50,7 @@ public class ArtemsTests {
         String[] activities = elog.getActivities();
         String[] names = PrecisionRecallComputer.getTransitionNames(net, activities);
 
-        resultL = PrecisionRecallComputer.getEntropyLogResult(context, canceller, log, logName,  elog, names);
+        resultL = PrecisionRecallComputer.getEntropyLogResult(context, canceller, logName,  elog, names);
     }
 
     protected AcceptingPetriNet getAcceptingPetriNet(Object[] netAndMarking) {

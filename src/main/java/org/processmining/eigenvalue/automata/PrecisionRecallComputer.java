@@ -54,6 +54,18 @@ public class PrecisionRecallComputer {
         }
     }
 
+    public static EntropyPrecisionRecall getPrecisionAndRecall(Automaton aM, String mName, Automaton aL, String lName, Automaton aLM, double fittingTracesFraction, ProMCanceller canceller){
+        return getPrecisionAndRecall(aM, mName, aL, lName, aLM, mName+"&"+lName, fittingTracesFraction, canceller);
+    }
+
+    public static EntropyPrecisionRecall getPrecisionAndRecall(Automaton aM, String mName, Automaton aL, String lName, Automaton aLM, String lmName, double fittingTracesFraction, ProMCanceller canceller){
+        EntropyResult resultM = getResult(mName, aM.getNumberOfStates(), TopologicalEntropyComputer.getTopologicalEntropy(aM, mName, canceller));
+        EntropyResult resultL = getResult(lName, aL.getNumberOfStates(), TopologicalEntropyComputer.getTopologicalEntropy(aL, lName, canceller));
+        EntropyResult resultLM = getResult(lmName, aLM.getNumberOfStates(), TopologicalEntropyComputer.getTopologicalEntropy(aLM, lmName, canceller));
+
+        return new EntropyPrecisionRecall(resultLM, resultM, resultL, fittingTracesFraction);
+    }
+
     /**
      * Computes Precision and Recall for event log and an accepting petri net.
      * @param context {@link PluginContext} that can be null in testing or UI-less computation
@@ -75,11 +87,6 @@ public class PrecisionRecallComputer {
             context.getProgress().setMaximum(100);
         }
         log(context, "Starting precision computation for "+name, 1);
-
-        EfficientStochasticNetSemanticsImpl semantics = new EfficientStochasticNetSemanticsImpl();
-        Marking initMarking = net.getInitialMarking();
-        semantics.initialize(net.getNet().getTransitions(), initMarking);
-
         checkCancelled(canceller);
 
         // prepare
@@ -92,12 +99,19 @@ public class PrecisionRecallComputer {
         String[] names = getTransitionNames(net, activities);
 
         AcceptingPetriNet projectedNet = ProjectPetriNetOntoActivities.project(net, canceller, names);
+        Automaton a = null;
+        try {
+            a = AcceptingPetriNet2automaton.convert(projectedNet, Integer.MAX_VALUE, canceller);
+        } catch (AutomatonFailedException e){
+            e.printStackTrace();
+        }
+        log(context, "Converted net to automaton.", 35);
+        checkCancelled(canceller);
+
+
         log(context, "Projected net to (all) activities.", 30);
         EntropyPrecisionRecall precision = null;
         try {
-            Automaton a = AcceptingPetriNet2automaton.convert(projectedNet, Integer.MAX_VALUE, canceller);
-            log(context, "Converted net to automaton.", 35);
-            checkCancelled(canceller);
 
             EntropyResult resultM = getResult(name, net.getNet().getNodes().size(), TopologicalEntropyComputer.getTopologicalEntropy(a, name, canceller));
 
@@ -118,7 +132,7 @@ public class PrecisionRecallComputer {
                     log(context, "No fitting traces in log " + logName +
                             " that match model " + name + ". Precision is 0 be definition!", 79);
                 }
-                resultLM = getResult(Utils.getName(log, logName), elog.size(), TopologicalEntropyComputer.getTopologicalEntropy(a, logName, canceller));
+                resultLM = getResult(logName, elog.size(), TopologicalEntropyComputer.getTopologicalEntropy(a, logName, canceller));
 
                 log(context, "Computed log-model automaton topology.", 75);
             }
@@ -126,11 +140,11 @@ public class PrecisionRecallComputer {
                 resultL = resultLM;
             }
             if (resultL == null) {
-                resultL = getEntropyLogResult(context, canceller, log, logName, elog, names);
+                resultL = getEntropyLogResult(context, canceller, logName, elog, names);
                 checkCancelled(canceller);
             }
             precision = new EntropyPrecisionRecall(resultLM, resultM, resultL, fittingTracesFraction);
-        } catch (AutomatonFailedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return precision;
@@ -141,13 +155,13 @@ public class PrecisionRecallComputer {
             throw new CancelledException();
         }
     }
-    public static EntropyResult getEntropyLogResult(PluginContext context, ProMCanceller canceller, XLog log, String logName, EfficientLog elog, String[] names) throws CancelledException {
+    public static EntropyResult getEntropyLogResult(PluginContext context, ProMCanceller canceller, String logName, EfficientLog elog, String[] names) throws CancelledException {
         Pair<Double, Automaton> pair = processLog(elog, null, false, canceller, names);
         log(context, "Computed Log automaton.", 80);
         checkCancelled(canceller);
 
         Automaton a = pair.getB();
-        EntropyResult resultL = getResult(Utils.getName(log, logName), elog.size(), TopologicalEntropyComputer.getTopologicalEntropy(a, logName, canceller));
+        EntropyResult resultL = getResult(logName, elog.size(), TopologicalEntropyComputer.getTopologicalEntropy(a, logName, canceller));
         log(context, "Computed log automaton topological entropy.", 95);
         return resultL;
     }
@@ -229,6 +243,17 @@ public class PrecisionRecallComputer {
         }
     }
 
+    /**
+     * Extracts the intersection automaton of the log and the model.
+     * Does this by incrementally building an automaton of the log for each trace variant that fits the model.
+     *
+     * @param log {@link EfficientLog}
+     * @param modelAutomaton {@link RunAutomaton} for parsing the traces
+     * @param selectOnlyFittingTraces
+     * @param canceller
+     * @param names
+     * @return
+     */
     public static Pair<Double, Automaton> processLog(EfficientLog log, RunAutomaton modelAutomaton, boolean selectOnlyFittingTraces, ProMCanceller canceller, String... names) {
         short[] projectionKey = log.getProjectionKey(names);
         int replayableTraces = 0;
@@ -255,6 +280,17 @@ public class PrecisionRecallComputer {
         }
     }
 
+    /**
+     * Incorporates fitting traces into the log automaton.
+     * @param modelAutomaton {@link RunAutomaton} that encodes the model for parsing each trace
+     * @param logAutomaton the current state of the log automaton that is invrementally enriched.
+     * @param log {@link EfficientLog} encoded log
+     * @param trace int the trace index
+     * @param projectionKey short[] encoded short values that refer to the activities in the log
+     * @param onlyFittingTraces flag that specifies whether only fitting traces should be added to the log automaton
+     * @param canceller {@link ProMCanceller} that allows to stop the computation on user request.
+     * @return Pair of boolean, Automaton:  flag that indicates whether the trace was incorporated, and the resulting automaton.
+     */
     public static Pair<Boolean, Automaton> processTrace(RunAutomaton modelAutomaton, Automaton logAutomaton, EfficientLog log, int trace, short[] projectionKey, boolean onlyFittingTraces, ProMCanceller canceller) {
         short[] projectedTrace = log.getProjectedTrace(trace, projectionKey);
         boolean addToAutomaton = !onlyFittingTraces || modelAutomaton.run(projectedTrace);
