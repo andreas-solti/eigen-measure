@@ -12,7 +12,7 @@ repositories {
 
 dependencies {
     // https://mvnrepository.com/artifact/io.github.andreas-solti.xeslite/xeslite
-    compile group: 'io.github.andreas-solti.xeslite', name: 'xeslite', version: '0.0.1'
+    //compile group: 'io.github.andreas-solti.xeslite', name: 'xeslite', version: '0.0.1'
     //compile 'dk.brics:automaton:1.11-8'
     compile fileTree(dir: 'lib', include: 'dk.brics.automaton.jar')
 
