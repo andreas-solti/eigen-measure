@@ -14,7 +14,7 @@ function download_and_unpack {
         echo "Getting plugin dependency: $2"
         wget -O dependency.zip $2
         echo "unpacking dependency..."
-        unzip dependency.zip
+        unzip -o dependency.zip
 
         if [ -z "$3" ]; then
             echo "regular lib"
@@ -46,9 +46,9 @@ function get_lpsolve_deps {
     wget https://svn.win.tue.nl/trac/prom/export/37720/Releases/Packages/LpSolve/LpSolve_5.5.0.15_lin64.zip
     wget https://svn.win.tue.nl/trac/prom/export/37720/Releases/Packages/LpSolve/LpSolve_5.5.0.15_mac.zip
     wget https://svn.win.tue.nl/trac/prom/export/37720/Releases/Packages/LpSolve/LpSolve_5.5.0.15_win64.zip
-    unzip LpSolve_5.5.0.15_lin64.zip
-    unzip LpSolve_5.5.0.15_mac.zip
-    unzip LpSolve_5.5.0.15_win64.zip
+    unzip -o LpSolve_5.5.0.15_lin64.zip
+    unzip -o LpSolve_5.5.0.15_mac.zip
+    unzip -o LpSolve_5.5.0.15_win64.zip
 
 }
 download_and_unpack AcceptingPetriNet.jar https://svn.win.tue.nl/trac/prom/export/37720/Releases/Packages/AcceptingPetriNet/AcceptingPetriNet-6.7.185-all.zip
