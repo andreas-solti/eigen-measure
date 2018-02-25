@@ -51,43 +51,43 @@ public class AutomatonTest {
 
     }
 
-    @Test
-    public void testAutomaton1cOrig() throws IOException {
-        dk.brics.automaton.Automaton a = new dk.brics.automaton.Automaton();
-        dk.brics.automaton.State sA = new dk.brics.automaton.State();
-        dk.brics.automaton.State sB = new dk.brics.automaton.State();
-        dk.brics.automaton.State sC = new dk.brics.automaton.State();
-        dk.brics.automaton.State sD = new dk.brics.automaton.State();
-        dk.brics.automaton.State sE = new dk.brics.automaton.State();
-        a.setInitialState(sA);
-        sA.setAccept(true);
-        sA.addTransition(new dk.brics.automaton.Transition('a',sB));
-        sB.addTransition(new dk.brics.automaton.Transition('b',sC));
-        sC.addTransition(new dk.brics.automaton.Transition('c',sB));
-        sB.addTransition(new dk.brics.automaton.Transition('b',sD));
-        sD.addTransition(new dk.brics.automaton.Transition('d',sE));
-        sE.addTransition(new dk.brics.automaton.Transition('e',sA));
-
-        outputPNG(a, "fig1c_orig");
-        a.setDeterministic(false);
-        a.determinize();
-        outputPNG(a, "fig1c_orig_det");
-
-        a.minimize();
-        outputPNG(a, "fig1c_orig_min");
-    }
-
-
-    private void outputPNG(dk.brics.automaton.Automaton a, String name) throws IOException {
-        String dotFile = name+".dot";
-        String pngFile = name+".png";
-        FileWriter fw = new FileWriter(dotFile);
-        fw.write(a.toDot());
-        fw.close();
-
-        File output = new File(pngFile);
-        ProcessBuilder pb = new ProcessBuilder("dot", "-Tpng", dotFile);
-        pb.redirectOutput(output);
-        pb.start();
-    }
+//    @Test
+//    public void testAutomaton1cOrig() throws IOException {
+//        dk.brics.automaton.Automaton a = new dk.brics.automaton.Automaton();
+//        dk.brics.automaton.State sA = new dk.brics.automaton.State();
+//        dk.brics.automaton.State sB = new dk.brics.automaton.State();
+//        dk.brics.automaton.State sC = new dk.brics.automaton.State();
+//        dk.brics.automaton.State sD = new dk.brics.automaton.State();
+//        dk.brics.automaton.State sE = new dk.brics.automaton.State();
+//        a.setInitialState(sA);
+//        sA.setAccept(true);
+//        sA.addTransition(new dk.brics.automaton.Transition('a',sB));
+//        sB.addTransition(new dk.brics.automaton.Transition('b',sC));
+//        sC.addTransition(new dk.brics.automaton.Transition('c',sB));
+//        sB.addTransition(new dk.brics.automaton.Transition('b',sD));
+//        sD.addTransition(new dk.brics.automaton.Transition('d',sE));
+//        sE.addTransition(new dk.brics.automaton.Transition('e',sA));
+//
+//        outputPNG(a, "fig1c_orig");
+//        a.setDeterministic(false);
+//        a.determinize();
+//        outputPNG(a, "fig1c_orig_det");
+//
+//        a.minimize();
+//        outputPNG(a, "fig1c_orig_min");
+//    }
+//
+//
+//    private void outputPNG(dk.brics.automaton.Automaton a, String name) throws IOException {
+//        String dotFile = name+".dot";
+//        String pngFile = name+".png";
+//        FileWriter fw = new FileWriter(dotFile);
+//        fw.write(a.toDot());
+//        fw.close();
+//
+//        File output = new File(pngFile);
+//        ProcessBuilder pb = new ProcessBuilder("dot", "-Tpng", dotFile);
+//        pb.redirectOutput(output);
+//        pb.start();
+//    }
 }
