@@ -185,7 +185,7 @@ public class PrecisionRecallComputer {
         logger.debug(message);
     }
 
-    private static EntropyResult getResult(String name, int size, EntropyResult entResult) {
+    public static EntropyResult getResult(String name, int size, EntropyResult entResult) {
         entResult.name = name;
         entResult.size = size;
         return entResult;

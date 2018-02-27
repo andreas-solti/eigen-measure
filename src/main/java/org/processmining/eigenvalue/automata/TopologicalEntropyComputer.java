@@ -91,13 +91,18 @@ public class TopologicalEntropyComputer {
         return entM;
     }
 
+    public static EntropyResult getTopologicalEntropy(Automaton a, String name, ProMCanceller canceller) {
+        return getTopologicalEntropy(a, name, canceller, 1.0);
+    }
+
     /**
-     * @param a         automaton of which to compute the largest eigenvalue
-     * @param name      String a name
-     * @param canceller allows to cancel the execution, if it takes too long
+     * @param a                  automaton of which to compute the largest eigenvalue
+     * @param name               String a name
+     * @param canceller          allows to cancel the execution, if it takes too long
+     * @param shortCircuitFactor sets the edge degree of the short circuiting (setting to 0 avoids short-circuiting)
      * @return EntropyResult
      */
-    public static EntropyResult getTopologicalEntropy(Automaton a, String name, ProMCanceller canceller) {
+    public static EntropyResult getTopologicalEntropy(Automaton a, String name, ProMCanceller canceller, double shortCircuitFactor) {
         if (a == null || a.getStates().size() == 0) {
             return new EntropyResult(name, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, true);
         }
@@ -107,13 +112,13 @@ public class TopologicalEntropyComputer {
         long timeMatrixConversion;
         boolean converged = true;
         if (a.getStates().size() < 5) {
-            SparseRealMatrix matrix = getSparseApacheMathMatrix(a);
+            SparseRealMatrix matrix = getSparseApacheMathMatrix(a, shortCircuitFactor);
             timeMatrixConversion = System.currentTimeMillis() - timeNow;
             timeNow = System.currentTimeMillis();
             EigenDecomposition decomp = new EigenDecomposition(matrix);
             largestEigenvalue = getMax(decomp.getRealEigenvalues());
         } else {
-            MatrixAndDegreeStats matrixAndStats = getCompressedSparseMatrix(a);
+            MatrixAndDegreeStats matrixAndStats = getCompressedSparseMatrix(a, shortCircuitFactor);
             double lowerBound = Math.max(matrixAndStats.avgDegree, Math.sqrt(matrixAndStats.getMaxDegree()));
             double upperBound = matrixAndStats.getMaxDegree();
 
@@ -343,7 +348,11 @@ public class TopologicalEntropyComputer {
         }
     }
 
-    private static SparseRealMatrix getSparseApacheMathMatrix(Automaton a) {
+    private static SparseRealMatrix getSparseApacheMathMatrix(Automaton a){
+        return getSparseApacheMathMatrix(a, 1.0);
+    }
+
+    private static SparseRealMatrix getSparseApacheMathMatrix(Automaton a, double shortCircuidFactor) {
         SparseRealMatrix matrix = new OpenMapRealMatrix(a.getNumberOfStates(), a.getNumberOfStates());
 
         TObjectIntHashMap<State> stateIds = new TObjectIntHashMap<>();
@@ -363,7 +372,7 @@ public class TopologicalEntropyComputer {
             int col = getId(a.getInitialState(), stateIds);
 
             double entry = matrix.getEntry(row, col);
-            matrix.setEntry(row, col, entry + 1);
+            matrix.setEntry(row, col, entry + shortCircuidFactor);
         }
         return matrix;
     }
