@@ -14,7 +14,6 @@ import org.processmining.eigenvalue.data.EntropyPrecisionRecall;
 import org.processmining.eigenvalue.data.EntropyResult;
 import org.processmining.eigenvalue.test.TestUtils;
 
-import javax.rmi.CORBA.Util;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -330,10 +329,6 @@ public class ExamplesTest {
         printResult(sAbc, "abc", lAbcd, "abc_d", 3/5.);
 
         printResult(sAbc, "abc", lAbcd_or_e, "abc_d_or_e", 3/5.);
-
-
-
-        EntropyPrecisionRecall result2 = PrecisionRecallComputer.getPrecisionAndRecall(sAbc, "abc", lAbcd, "abc_d", sl1, 3/5., Utils.NOT_CANCELLER);
     }
 
     private void printResult(Automaton m, String mName, Automaton l, String lName, double fittingTracesFraction) {

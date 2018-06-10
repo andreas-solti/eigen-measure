@@ -21,9 +21,25 @@ Within Linux-like systems, you need to:
 ```$ ./download_dependencies.sh```
 
 ### Installation in Windows:
-Install Ubuntu for Windows and follow steps above.
+Install Ubuntu for Windows and follow steps above
+from within the virual linux environment.
 
 ## Running
 You can verify, if all works as expected by running:<br/>
 ```gradle test```
+
+## Check out the sources in your favorite IDE
+Last, explore the sources (src) in your favorite editor (e.g. IntelliJ, VS-Code, or Eclipse).
+There are some tests that show the functionality. Unit tests can also be run from inside those editors.
+
+## Compute eigenvalue-based Precision
+The class to use for computing precision and recall is
+`org.processmining.eigenvalue.automata.PrecisionRecallComputer`
+
+It uses an AcceptingPetriNet as input and an Event log with the classifier to compute the PrecisionAndRecall.
+
+
+
+
+
 
