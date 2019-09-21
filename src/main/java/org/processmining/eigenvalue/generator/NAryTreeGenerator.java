@@ -21,6 +21,17 @@ public class NAryTreeGenerator {
     }
 
     /**
+     * @param seed random seed for the generator
+     */
+    public NAryTreeGenerator(long seed) {
+        this.random = new Random(seed);
+    }
+
+    public void setSeed(long seed){
+        this.random.setSeed(seed);
+    }
+
+    /**
      * Generates a random tree of size numLeafs and ensures that the alphabet is within the size (creates duplicates in this way)
      * @param numLeafs number of leafs
      * @param alphabetSize size of the alphabet

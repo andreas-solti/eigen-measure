@@ -67,6 +67,57 @@ public class PrecisionRecallComputer {
     }
 
     /**
+     * Converts a @{@link AcceptingPetriNet} to an @{@link Automaton}.
+     * @param net {@link AcceptingPetriNet} to convert.
+     * @param activities {@link String}[] array that captures the names in the other part, if names should be converted.
+     * @return Automaton the automaton of the model projected onto the
+     */
+    public static Automaton getAutomaton(AcceptingPetriNet net, String[] activities){
+        String[] names = getTransitionNames(net, activities);
+        System.out.println(""+names);
+        AcceptingPetriNet projectedNet = ProjectPetriNetOntoActivities.project(net, Utils.NOT_CANCELLER, names);
+        Automaton a = null;
+        try {
+            a = AcceptingPetriNet2automaton.convert(projectedNet, Integer.MAX_VALUE, Utils.NOT_CANCELLER);
+        } catch (AutomatonFailedException e){
+            e.printStackTrace();
+            System.out.println("Error getting Automaton!");
+        }
+        return a;
+    }
+
+    public static Automaton getAutomaton(AcceptingPetriNet net){
+        return getAutomaton(net, new String[]{});
+    }
+
+
+    /**
+     * Computes Precision and Recall for event log and an accepting petri net.
+     * @param context {@link PluginContext} that can be null in testing or UI-less computation
+     * @param canceller {@link ProMCanceller} a handler that indicates, whether computation should be aborted due to user cancellation
+     * @param firstNet {@link AcceptingPetriNet} the first model to check for precision & fitness.
+     * @param secondNet {@link AcceptingPetriNet} the model to compare the first model to.
+
+     * @return EntropyPrecisionRecall result object encapsulating
+     * @throws CancelledException
+     */
+    public static EntropyPrecisionRecall getPrecisionAndRecall(PluginContext context, ProMCanceller canceller, AcceptingPetriNet firstNet, AcceptingPetriNet secondNet) throws CancelledException {
+        String name1 = Utils.getName(firstNet.getNet(),"M1");
+        String name2 = Utils.getName(secondNet.getNet(),"M2");
+
+        String[] names = getTransitionNames(firstNet, new String[]{});
+        names = getTransitionNames(secondNet, names);
+
+        Automaton a1 = getAutomaton(firstNet, names);
+        Automaton a2 = getAutomaton(secondNet, names);
+
+        Automaton a12 = a1.intersection(a2, Utils.NOT_CANCELLER);
+
+        return getPrecisionAndRecall(a1, name1, a2, name2, a12, a12.getNumberOfStates() / (double)a1.getNumberOfStates(), Utils.NOT_CANCELLER);
+    }
+
+
+    /**
      * Computes Precision and Recall for event log and an accepting petri net.
      * @param context {@link PluginContext} that can be null in testing or UI-less computation
      * @param canceller {@link ProMCanceller} a handler that indicates, whether computation should be aborted due to user cancellation

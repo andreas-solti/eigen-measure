@@ -99,7 +99,7 @@ public class TopologicalEntropyComputer {
      */
     public static EntropyResult getTopologicalEntropy(Automaton a, String name, ProMCanceller canceller) {
         if (a == null || a.getStates().size() == 0) {
-            return new EntropyResult(name, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, true);
+            return new EntropyResult(name, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, true, 0.00001);
         }
         AutomatonMinimization minimize = new AutomatonMinimization(a, name, canceller).minimize();
         long timeNow = System.currentTimeMillis();
@@ -141,7 +141,8 @@ public class TopologicalEntropyComputer {
             }
         }
         return new EntropyResult(minimize.automatonSizeOrig, minimize.automatonSizeDeterministic, minimize.automatonSizeMinimal,
-                minimize.timeDeterminize, minimize.timeMinimize, largestEigenvalue, FastMath.log(2, largestEigenvalue), System.currentTimeMillis() - timeNow, timeMatrixConversion, converged);
+                minimize.timeDeterminize, minimize.timeMinimize, largestEigenvalue, FastMath.log(2, largestEigenvalue),
+                System.currentTimeMillis() - timeNow, timeMatrixConversion, converged, ArpackGen.convergedTolerance);
     }
 
     /**

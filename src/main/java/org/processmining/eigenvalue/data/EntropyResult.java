@@ -33,6 +33,8 @@ public class EntropyResult {
      * Stores whether the power method converged and the result is reliable
      */
     public boolean converged;
+    public double convergenceThreshold;
+
     public final long timeMatrixConversion;
     public final long timeAutomatonDeterminization;
     public final long timeAutomatonMinimization;
@@ -45,16 +47,16 @@ public class EntropyResult {
     public EntropyResult(int automatonSizeOrig, int automatonSizeDeterministic, int automatonSizeMinimal,
                          long timeAutomatonDeterminization, long timeAutomatonMinimization,
                          double largestEigenvalue, double topologicalEntropy,
-                         long timeEigenDecomposition, long timeMatrixConversion, boolean converged) {
+                         long timeEigenDecomposition, long timeMatrixConversion, boolean converged, double convergenceThreshold) {
         this("",0,0,automatonSizeOrig,automatonSizeDeterministic,automatonSizeMinimal, timeAutomatonDeterminization,
                 timeAutomatonMinimization,largestEigenvalue,topologicalEntropy,timeEigenDecomposition,timeMatrixConversion,
-                converged);
+                converged, convergenceThreshold);
     }
 
     public EntropyResult(String name, int size, long millis, int automatonSizeOrig, int automatonSizeDeterministic, int automatonSizeMinimal,
                          long timeAutomatonDeterminization, long timeAutomatonMinimization,
                          double largestEigenvalue, double topologicalEntropy,
-                         long timeEigenDecomposition, long timeMatrixConversion, boolean converged) {
+                         long timeEigenDecomposition, long timeMatrixConversion, boolean converged, double convergenceThreshold) {
         this.name = name;
         this.size = size;
         this.computationMillis = millis;
@@ -68,6 +70,7 @@ public class EntropyResult {
         this.timeMatrixConversion = timeMatrixConversion;
         this.topologicalEntropy = topologicalEntropy;
         this.converged = converged;
+        this.convergenceThreshold = convergenceThreshold;
     }
 
     public double getResult(){
@@ -84,7 +87,7 @@ public class EntropyResult {
                 "timeEigen"+SEPARATOR+"netSize"+SEPARATOR+
                 "automatonSizeOrig"+SEPARATOR+"automatonSizeDeterministic"+SEPARATOR+
                 "automatonSize"+SEPARATOR+"entropy"+SEPARATOR+
-                "largestEigenValue"+SEPARATOR+"entropyComputationConverged";
+                "largestEigenValue"+SEPARATOR+"entropyComputationConverged"+SEPARATOR+"convergenceThreshold";
     }
 
     public String resultString(){
@@ -93,7 +96,7 @@ public class EntropyResult {
                 timeEigenDecomposition +SEPARATOR+ size +SEPARATOR+
                 automatonSizeOrig +SEPARATOR+ automatonSizeDeterministic +SEPARATOR+
                 automatonSizeMinimal +SEPARATOR+ topologicalEntropy +SEPARATOR+
-                largestEigenvalue +SEPARATOR+ String.valueOf(converged).toUpperCase();
+                largestEigenvalue +SEPARATOR+ String.valueOf(converged).toUpperCase()+SEPARATOR+convergenceThreshold;
     }
 }
 

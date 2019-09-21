@@ -49,10 +49,21 @@ public class Utils {
 	}
 	
 	public static XLog cloneLog(XLog log){
+		return cloneLog(log, -1);
+	}
+
+	public static XLog cloneLog(XLog log, int maxNumTraces){
 		XLog logClone = XFactoryRegistry.instance().currentDefault().createLog((XAttributeMap) log.getAttributes().clone());
+		if (maxNumTraces < 0){
+			maxNumTraces = Integer.MAX_VALUE;
+		}
+		int numTraces = 0;
 		for (XTrace trace : log){
+			if (numTraces++ >= maxNumTraces) {
+				break;
+			}
 			XTrace traceClone = XFactoryRegistry.instance().currentDefault().createTrace((XAttributeMap) trace.getAttributes().clone());
-			for (XEvent event : trace){
+			for (XEvent event : trace) {
 				XEvent eventClone = XFactoryRegistry.instance().currentDefault().createEvent((XAttributeMap) event.getAttributes().clone());
 				traceClone.add(eventClone);
 			}
@@ -159,5 +170,9 @@ public class Utils {
 	public static XLog loadLog(File file) throws Exception {
 		OpenLogFileLiteImplPlugin openPlugin = new OpenLogFileLiteImplPlugin();
 		return (XLog) openPlugin.importFile(StochasticNetUtils.getDummyUIContext(), file);
+	}
+
+	public static void main(String[] args) {
+		System.out.println("This library is meant to be used programmatically. See https://github.com/andreas-solti/eigen-measure for examples. Exiting.");
 	}
 }

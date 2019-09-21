@@ -7,14 +7,18 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+    mavenLocal()
+    flatDir {
+        dirs 'lib/plugins'
+    }
 }
 
 
 dependencies {
     // https://mvnrepository.com/artifact/io.github.andreas-solti.xeslite/xeslite
     compile group: 'io.github.andreas-solti.xeslite', name: 'xeslite', version: '0.0.1'
-    //compile 'dk.brics:automaton:1.11-8'
-    compile fileTree(dir: 'lib', include: 'dk.brics.automaton.jar')
+    compile 'dk.brics:automaton:1.12-1'
+    //compile fileTree(dir: 'lib', include: 'dk.brics.automaton.jar')
 
     // Apache Commons:
     // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
@@ -37,7 +41,7 @@ dependencies {
     // https://mvnrepository.com/artifact/org.simpleframework/simple-xml
     compile group: 'org.simpleframework', name: 'simple-xml', version: '2.7.1'
 
-    compile group: 'io.github.andreas-solti.matrix-toolkits-java', name:'mtj', version:'1.0.7'
+    compile group: 'io.github.andreas-solti.matrix-toolkits-java', name:'mtj', version:'1.0.8'
 
     compile fileTree(dir: 'lib/plugins', include: '*.jar', exclude: 'Cobefra.jar')
     // Make sure that CobeFra is imported last!
@@ -45,4 +49,18 @@ dependencies {
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile fileTree(dir: 'src/main/java', include: '*.java')
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'org.processmining.eigenvalue.Utils'
+    }
+    baseName = 'all-in-one-jar'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+task testJar(type: Jar) {
+    classifier = 'tests'
+    from sourceSets.test.output.classesDirs
 }
