@@ -94,17 +94,16 @@ public class PrecisionRecallComputer {
 
     /**
      * Computes Precision and Recall for event log and an accepting petri net.
-     * @param context {@link PluginContext} that can be null in testing or UI-less computation
-     * @param canceller {@link ProMCanceller} a handler that indicates, whether computation should be aborted due to user cancellation
      * @param firstNet {@link AcceptingPetriNet} the first model to check for precision & fitness.
      * @param secondNet {@link AcceptingPetriNet} the model to compare the first model to.
-
+     * @param canceller {@link ProMCanceller} a handler that indicates, whether computation should be aborted due to user cancellation
+     *
      * @return EntropyPrecisionRecall result object encapsulating
      * @throws CancelledException
      */
-    public static EntropyPrecisionRecall getPrecisionAndRecall(PluginContext context, ProMCanceller canceller, AcceptingPetriNet firstNet, AcceptingPetriNet secondNet) throws CancelledException {
-        String name1 = Utils.getName(firstNet.getNet(),"M1");
-        String name2 = Utils.getName(secondNet.getNet(),"M2");
+    public static EntropyPrecisionRecall getPrecisionAndRecall(AcceptingPetriNet firstNet, AcceptingPetriNet secondNet, ProMCanceller canceller) throws CancelledException {
+        String name1 = Utils.getName(firstNet.getNet(),"M_a");
+        String name2 = Utils.getName(secondNet.getNet(),"M_b");
 
         String[] names = getTransitionNames(firstNet, new String[]{});
         names = getTransitionNames(secondNet, names);
@@ -112,9 +111,10 @@ public class PrecisionRecallComputer {
         Automaton a1 = getAutomaton(firstNet, names);
         Automaton a2 = getAutomaton(secondNet, names);
 
-        Automaton a12 = a1.intersection(a2, Utils.NOT_CANCELLER);
+        Automaton a12 = a1.intersection(a2, canceller);
 
-        return getPrecisionAndRecall(a1, name1, a2, name2, a12, a12.getNumberOfStates() / (double)a1.getNumberOfStates(), Utils.NOT_CANCELLER);
+
+        return getPrecisionAndRecall(a1, name1, a2, name2, a12,  a12.getNumberOfStates() / (double)a1.getNumberOfStates(), canceller);
     }
 
 
