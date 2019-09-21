@@ -36,7 +36,8 @@ public class PrecisionRecallComputer {
     private static final Log logger = LogFactory.getLog(PrecisionRecallComputer.class);
 
     /**
-     * Computes Precision and Recall for event log and an accepting petri net. Uses the default Name Classifier to
+     * Computes Precision and Recall for event log and an accepting petri net.
+     * Uses the default Name Classifier ({@link XLogInfoImpl#NAME_CLASSIFIER}) to
      * establish a link between model and log.
      *
      * @param context {@link PluginContext} that can be null in testing or UI-less computation
@@ -47,7 +48,7 @@ public class PrecisionRecallComputer {
      */
     public static EntropyPrecisionRecall getPrecisionAndRecall(PluginContext context, ProMCanceller canceller, XLog log, AcceptingPetriNet net) {
         try {
-            return getPrecisionAndRecall(context, canceller, log, net, XLogInfoImpl.NAME_CLASSIFIER, null);
+            return getPrecisionAndRecall(context, canceller, log, net, XLogInfoImpl.NAME_CLASSIFIER);
         } catch (CancelledException e) {
             logger.info("Precision computation cancelled!");
             return null;
@@ -119,6 +120,21 @@ public class PrecisionRecallComputer {
 
     /**
      * Computes Precision and Recall for event log and an accepting petri net.
+     *
+     * @param context {@link PluginContext} that can be null in testing or UI-less computation
+     * @param canceller {@link ProMCanceller} a handler that indicates, whether computation should be aborted due to user cancellation
+     * @param log {@link XLog} the event log to check for precision & fitness
+     * @param net {@link AcceptingPetriNet} that has corresponding initial and final markings set
+     * @param classifier the classifier to be used (for example the name classifier XLogInfoImpl.NAME_CLASSIFIER)
+     * @return EntropyPrecisionRecall result object encapsulating eigenvalue based precision and recall the results
+     * @throws CancelledException
+     */
+    public static EntropyPrecisionRecall getPrecisionAndRecall(PluginContext context, ProMCanceller canceller, XLog log, AcceptingPetriNet net, XEventClassifier classifier) throws CancelledException {
+        return getPrecisionAndRecall(context, canceller, log, net, classifier, null);
+    }
+
+    /**
+     * Computes Precision and Recall for event log and an accepting petri net.
      * @param context {@link PluginContext} that can be null in testing or UI-less computation
      * @param canceller {@link ProMCanceller} a handler that indicates, whether computation should be aborted due to user cancellation
      * @param log {@link XLog} the event log to check for precision & fitness
@@ -126,7 +142,7 @@ public class PrecisionRecallComputer {
      * @param classifier the classifier to be used (for example the name classifier XLogInfoImpl.NAME_CLASSIFIER)
      * @param resultL {@link EntropyResult} of a log (it is possible to pass in the result, to avoid recomputing it all the time.)
      *
-     * @return EntropyPrecisionRecall result object encapsulating
+     * @return EntropyPrecisionRecall result object encapsulating eigenvalue based precision and recall the results
      * @throws CancelledException
      */
     public static EntropyPrecisionRecall getPrecisionAndRecall(PluginContext context, ProMCanceller canceller, XLog log, AcceptingPetriNet net, XEventClassifier classifier, EntropyResult resultL) throws CancelledException {
@@ -236,7 +252,7 @@ public class PrecisionRecallComputer {
         logger.debug(message);
     }
 
-    private static EntropyResult getResult(String name, int size, EntropyResult entResult) {
+    public static EntropyResult getResult(String name, int size, EntropyResult entResult) {
         entResult.name = name;
         entResult.size = size;
         return entResult;

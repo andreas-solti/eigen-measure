@@ -5,6 +5,7 @@ import dk.brics.automaton2.Automaton;
 import dk.brics.automaton2.State;
 import dk.brics.automaton2.Transition;
 import no.uib.cipr.matrix.sparse.CompColMatrix;
+import org.junit.Assert;
 import org.junit.Test;
 import org.processmining.eigenvalue.Utils;
 import org.processmining.eigenvalue.automata.PrecisionRecallComputer;
@@ -42,6 +43,57 @@ public class ExamplesTest {
 
     public static void wire(State from, char label, State to){
         from.addTransition(new Transition(charMap.get(label),to));
+    }
+
+    public static Automaton getABC() {
+        Automaton a = new Automaton();
+        State sI = new State();
+        State sII = new State();
+        State sIII = new State();
+        State sIV = new State();
+        a.setInitialState(sI);
+        sIV.setAccept(true);
+        wire(sI, 'a', sII);
+        wire(sII, 'b', sIII);
+        wire(sIII, 'c', sIV);
+        return a;
+    }
+
+    public static Automaton getABC_D() {
+        Automaton a = new Automaton();
+        State sI = new State();
+        State sII = new State();
+        State sIII = new State();
+        State sIV = new State();
+        State sV = new State();
+        a.setInitialState(sI);
+        sIV.setAccept(true);
+        sV.setAccept(true);
+        wire(sI, 'a', sII);
+        wire(sII, 'b', sIII);
+        wire(sIII, 'c', sIV);
+        wire(sIV, 'd', sV);
+        return a;
+    }
+
+    public static Automaton getABC_D_or_E() {
+        Automaton a = new Automaton();
+        State sI = new State();
+        State sII = new State();
+        State sIII = new State();
+        State sIV = new State();
+        State sV = new State();
+        State sVI = new State();
+        a.setInitialState(sI);
+        sIV.setAccept(true);
+        sV.setAccept(true);
+        sVI.setAccept(true);
+        wire(sI, 'a', sII);
+        wire(sII, 'b', sIII);
+        wire(sIII, 'c', sIV);
+        wire(sIV, 'd', sV);
+        wire(sIV, 'e', sVI);
+        return a;
     }
 
     public static Automaton getS1() {
@@ -99,6 +151,55 @@ public class ExamplesTest {
         return a;
     }
 
+    public static Automaton getS4() {
+        Automaton a = new Automaton();
+        State sF = new State();
+        State sG = new State();
+        State sH = new State();
+        State sI = new State();
+        a.setInitialState(sF);
+        sF.setAccept(true);
+        wire(sF, 'a', sG);
+        wire(sG, 'b', sH);
+        wire(sH, 'c', sG);
+        wire(sH, 'd', sI);
+        wire(sI, 'e', sF);
+        return a;
+    }
+
+    public static Automaton getS5() {
+        Automaton a = new Automaton();
+        State s1 = new State();
+        State s2 = new State();
+        State s3 = new State();
+        State s4 = new State();
+        State s5 = new State();
+        State s6 = new State();
+        a.setInitialState(s1);
+        s1.setAccept(true);
+        wire(s1, 'a', s2);
+        wire(s2, 'b', s3);
+        wire(s3, 'c', s4);
+        wire(s4, 'b', s5);
+        wire(s5, 'c', s4);
+        wire(s5, 'd', s6);
+        wire(s6, 'e', s1);
+        return a;
+    }
+
+    public static Automaton getXStar() {
+        Automaton a = new Automaton();
+        State s1 = new State();
+        s1.setAccept(true);
+        a.setInitialState(s1);
+        wire(s1, 'a', s1);
+        wire(s1, 'b', s1);
+        wire(s1, 'c', s1);
+        wire(s1, 'd', s1);
+        wire(s1, 'e', s1);
+        return a;
+    }
+
     public static Automaton getL1() {
         return TestUtils.getLogAutomaton("abde", "abcbcde");
     }
@@ -148,8 +249,95 @@ public class ExamplesTest {
         Automaton aM = getS1();
         Automaton aL = getL3();
 
+        Automaton aMaL = aM.intersection(aL, Utils.NOT_CANCELLER);
+        aMaL.minimize(Utils.NOT_CANCELLER);
+        TestUtils.outputPNG(aMaL, "S1_intersect_L3");
 
         getPrecisionAndRecall(mName, lName, aM, aL);
+    }
+
+    @Test
+    public void testRelations() {
+        // check if S5 in S4 in S1
+
+        // check S5 in S4:
+        Automaton s1 = getS1();
+        Automaton s4 = getS4();
+        Automaton s5 = getS5();
+
+        // s4 in s1, if intersection = s4
+        Automaton s1s4 = s1.intersection(s4, Utils.NOT_CANCELLER);
+        Assert.assertEquals(s1s4, s4);
+        Assert.assertEquals(s1s4.getNumberOfStates(), s4.getNumberOfStates());
+
+        // s5 in s4 -> s4 cap s5 = s5
+        Automaton s4s5 = s4.intersection(s5, Utils.NOT_CANCELLER);
+        Assert.assertEquals(s4s5, s5);
+
+        // s5 in s4 in s1 -> s1 cap s5 = s5
+        Automaton s1s5 = s1.intersection(s5, Utils.NOT_CANCELLER);
+        Assert.assertEquals(s1s5, s5);
+    }
+
+    @Test
+    public void testQuotientsSection4() {
+        Automaton s1 = getS1();
+        Automaton s4 = getS4();
+        Automaton s5 = getS5();
+
+        Automaton sX = getXStar();
+
+        EntropyResult resultS1 = PrecisionRecallComputer.getResult("S1", s1.getNumberOfStates(), TopologicalEntropyComputer.getTopologicalEntropy(s1, "s1", Utils.NOT_CANCELLER, 0.0));
+        EntropyResult resultS4 = PrecisionRecallComputer.getResult("S4", s4.getNumberOfStates(), TopologicalEntropyComputer.getTopologicalEntropy(s4, "s4", Utils.NOT_CANCELLER, 0.0));
+        EntropyResult resultS5 = PrecisionRecallComputer.getResult("S5", s5.getNumberOfStates(), TopologicalEntropyComputer.getTopologicalEntropy(s5, "s5", Utils.NOT_CANCELLER, 0.0));
+
+        EntropyResult resultSX = PrecisionRecallComputer.getResult("X", sX.getNumberOfStates(), TopologicalEntropyComputer.getTopologicalEntropy(sX, "X", Utils.NOT_CANCELLER, 0.0));
+
+        double u = resultS4.largestEigenvalue/resultS1.largestEigenvalue;
+        double v = resultS5.largestEigenvalue/resultS1.largestEigenvalue;
+        double w = resultS5.largestEigenvalue/resultS4.largestEigenvalue;
+
+        double x = resultS5.largestEigenvalue/resultSX.largestEigenvalue;
+
+        System.out.println("u = "+u);
+        System.out.println("v = "+v);
+        System.out.println("w = "+w);
+
+        System.out.println("x = "+x);
+
+        Assert.assertTrue("v smaller than w (Lemma 4.2)", v < w);
+        Assert.assertTrue("v smaller than u (Lemma 4.3)", v < u);
+        Assert.assertTrue("x smaller than w (Lemma 4.3)", x < w);
+
+        System.out.println("X = "+resultS4.largestEigenvalue);
+        System.out.println("Y = "+resultS5.largestEigenvalue);
+
+        toCSV(s4, "S4");
+        toCSV(s5, "S5");
+    }
+
+    @Test
+    public void testLittleRecallExperiment() {
+        Automaton sAbc = getABC();
+        Automaton lAbcd = getABC_D();
+        Automaton lAbcd_or_e = getABC_D_or_E();
+
+        Automaton sl1 = sAbc.intersection(lAbcd, Utils.NOT_CANCELLER);
+        Automaton sl2 = sAbc.intersection(lAbcd_or_e, Utils.NOT_CANCELLER);
+
+
+        printResult(sAbc, "abc", lAbcd, "abc_d", 3/5.);
+
+        printResult(sAbc, "abc", lAbcd_or_e, "abc_d_or_e", 3/5.);
+    }
+
+    private void printResult(Automaton m, String mName, Automaton l, String lName, double fittingTracesFraction) {
+        EntropyPrecisionRecall result = PrecisionRecallComputer.getPrecisionAndRecall(m, mName, l, lName, m.intersection(l, Utils.NOT_CANCELLER), fittingTracesFraction, Utils.NOT_CANCELLER);
+        System.out.println("---------------------------------");
+        System.out.println("Results of "+mName+" and "+lName);
+        System.out.println("Precision: "+result.getPrecision());
+        System.out.println("Recall: "+result.getRecall());
+        System.out.println("Largest Eigenvalue LM: "+result.getLogModelResult().largestEigenvalue);
     }
 
     @Test
@@ -245,6 +433,7 @@ public class ExamplesTest {
         System.out.println("Results of "+mName+" and "+lName);
         System.out.println("Precision: "+result.getPrecision());
         System.out.println("Recall: "+result.getRecall());
+        System.out.println("Largest Eigenvalue LM: "+result.getLogModelResult().largestEigenvalue);
         return result;
     }
 

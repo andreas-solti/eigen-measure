@@ -5,6 +5,7 @@ import org.deckfour.xes.classification.XEventClasses;
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.in.XUniversalParser;
 import org.deckfour.xes.model.XLog;
+import org.junit.Test;
 import org.processmining.eigenvalue.Utils;
 import org.processmining.models.graphbased.directed.petrinet.StochasticNet;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
@@ -174,7 +175,13 @@ public class TestUtils {
                         public XLog next() {
                             XLog log = null;
                             try {
-                                log = parser.parse(finalFiles.get(counter.getAndIncrement())).iterator().next();
+                                File f = finalFiles.get(counter.getAndIncrement());
+                                if (f.exists()) {
+                                    Collection<XLog> logs = parser.parse(f);
+                                    if (logs.size() > 0) {
+                                        log = logs.iterator().next();
+                                    }
+                                }
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -185,5 +192,16 @@ public class TestUtils {
             };
         }
         return null;
+    }
+
+    @Test
+    public void testIterate() {
+        for (XLog log : getBPILogs()){
+            if (log == null){
+                System.out.println("Log is null!");
+            } else {
+                System.out.println(Utils.getName(log, "log"));
+            }
+        }
     }
 }

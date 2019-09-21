@@ -1,25 +1,11 @@
 package org.processmining.eigenvalue.test;
 
-import org.deckfour.xes.extension.std.XConceptExtension;
-import org.deckfour.xes.factory.XFactoryBufferedImpl;
-import org.deckfour.xes.factory.XFactoryNaiveImpl;
-import org.deckfour.xes.factory.XFactoryRegistry;
-import org.deckfour.xes.in.XUniversalParser;
-import org.deckfour.xes.model.XLog;
-import org.junit.Assert;
-import org.junit.Test;
-import org.xeslite.external.XFactoryExternalStore;
-import org.xeslite.lite.factory.XFactoryLiteImpl;
-
-import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.processmining.eigenvalue.test.TestUtils.LOGS_FOLDER;
+//import org.xeslite.external.XFactoryExternalStore;
+//import org.xeslite.lite.factory.XFactoryLiteImpl;
 
 public class TestImport {
 

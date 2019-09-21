@@ -57,7 +57,7 @@ public class EntropyResult {
                          long timeAutomatonDeterminization, long timeAutomatonMinimization,
                          double largestEigenvalue, double topologicalEntropy,
                          long timeEigenDecomposition, long timeMatrixConversion, boolean converged, double convergenceThreshold) {
-        this.name = name;
+        this.name = name.replaceAll(SEPARATOR,"-");
         this.size = size;
         this.computationMillis = millis;
         this.automatonSizeOrig = automatonSizeOrig;
