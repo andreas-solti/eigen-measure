@@ -142,7 +142,8 @@ public class TreeUtils {
 
 	public static ProcessTree mineTree(XLog xLog, XEventClassifier classifier, float noiseThreshold){
 		org.processmining.plugins.inductiveminer2.logs.IMLog log = new org.processmining.plugins.inductiveminer2.logs.IMLogImpl(xLog, classifier, new LifeCycleClassifier());
-		org.processmining.plugins.inductiveminer2.mining.MiningParameters miningParameters = new MiningParametersIMInfrequent();
+		MiningParametersIMInfrequent miningParameters = new MiningParametersIMInfrequent();
+		miningParameters.setDebug(false);
 		EfficientTree eTree = InductiveMiner.mineEfficientTree(log, miningParameters, new PackageManager.Canceller() {
 			@Override
 			public boolean isCancelled() {

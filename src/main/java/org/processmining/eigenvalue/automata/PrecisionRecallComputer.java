@@ -30,6 +30,7 @@ import org.processmining.projectedrecallandprecision.helperclasses.ProjectPetriN
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class PrecisionRecallComputer {
 
@@ -234,7 +235,7 @@ public class PrecisionRecallComputer {
     }
 
     public static String[] getTransitionNames(AcceptingPetriNet net, String[] activities) {
-        Set<String> transitionNames = new HashSet<>();
+        Set<String> transitionNames = new TreeSet<>();
         for (org.processmining.models.graphbased.directed.petrinet.elements.Transition t : net.getNet().getTransitions()) {
             if (!t.isInvisible() && t.getLabel() != null) {
                 transitionNames.add(t.getLabel());
